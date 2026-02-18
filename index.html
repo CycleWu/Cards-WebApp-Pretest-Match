@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>巴哈伊經典卡</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <h1>經典卡抽卡</h1>
+
+      <div class="theme-switch-container">
+        <span class="mode-label">淺色</span>
+        <label class="switch">
+          <input type="checkbox" id="themeToggleCheckbox">
+          <span class="slider round"></span>
+        </label>
+        <span class="mode-label">深色</span>
+      </div>
+      
+      <div class="segmented-control-wrapper">
+        <div class="segmented-control">
+          <input type="radio" name="mode" id="mode-simple" value="simple" checked>
+          <label for="mode-simple">簡單版</label>
+
+          <input type="radio" name="mode" id="mode-divination" value="divination">
+          <label for="mode-divination">占卜版</label>
+
+          <input type="radio" name="mode" id="mode-hiddenzh" value="hiddenzh">
+          <label for="mode-hiddenzh">隱言經 (中)</label>
+          
+          <input type="radio" name="mode" id="mode-hiddenen" value="hiddenen">
+          <label for="mode-hiddenen">隱言經 (英)</label>
+        </div>
+      </div>
+    </header>
+
+    <main class="app-main">
+      
+      <section id="divinationModeDisplay" style="display: none;">
+        <div class="selection-counter" id="selectionCounter">請憑直覺挑選 6 張卡片</div>
+        <div id="cardSpread" class="full-deck-grid"></div>
+        
+        <div id="testCardDetail" class="test-card-detail">
+          <p>準備中...</p>
+        </div>
+
+        <div id="divinationFullResults" class="divination-full-results" style="display: none;">
+          <h3>✦ 您的占卜結果 ✦</h3>
+          <div id="resultsContainer"></div>
+          <button class="btn secondary" style="margin-top: 20px; width: 100%;" onclick="renderFullDeck()">重新挑選</button>
+        </div>
+      </section>
+      
+      <div id="simpleModeGroup">
+        <section class="deck-section">
+          <div id="deck" class="deck-stack">
+            <img src="./imgs/Back.png" alt="卡牌背面" />
+          </div>
+        </section>
+
+        <details class="cardlist" id="cardListPanel">
+          <summary>卡牌清單</summary>
+          <div id="cardList" class="cardlist-body"></div>
+        </details>
+
+        <section class="card-display" id="cardDisplay">
+          <div class="card-inner">
+            <div class="card-image-wrapper" id="cardImageWrapper">
+              <img id="cardImage" alt="卡牌圖片" />
+            </div>
+            <h2 id="cardName" class="card-name">請抽經典卡</h2>
+            <p id="cardDescription" class="card-description">
+              點擊上方卡組或下方按鈕抽卡。
+            </p>
+          </div>
+        </section>
+
+        <section class="controls">
+          <button id="drawButton" class="btn primary" disabled>
+            抽卡
+          </button>
+        </section>
+      </div>
+
+      <div id="textOnlyModeGroup" style="display: none;">
+        <section class="deck-section">
+          <div id="deckTextOnly" class="deck-stack">
+            <img src="./imgs/Back.png" alt="卡牌背面" />
+          </div>
+        </section>
+
+        <section class="card-display">
+          <div class="card-inner">
+            <h2 id="textCardName" class="card-name">請抽隱言經</h2>
+            <p id="textCardDescription" class="card-description">
+              點擊上方卡組或下方按鈕抽卡。
+            </p>
+          </div>
+        </section>
+
+        <section class="controls">
+          <button id="drawButtonTextOnly" class="btn primary">
+            抽卡
+          </button>
+        </section>
+      </div>
+      
+      <section class="status" id="mainStatusSection">
+        <p id="statusText">正在初始化...</p>
+        <label class="toggle" id="imageToggleContainer">
+          <input type="checkbox" id="toggleImage" checked />
+          <span>顯示卡牌圖片（若有）</span>
+        </label>
+      </section>
+      
+    </main>
+
+    <footer class="app-footer">
+      <small>本頁不會儲存任何個人資料，僅做卡牌內容顯示與抽卡互動。</small>
+      <br />
+      <small>Provide by Siganmorfu, Cycle , Masa and Shoghi</small>
+    </footer>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>

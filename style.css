@@ -1,0 +1,354 @@
+/* =========================================
+   1. CSS 變數定義 (主題核心 - 嚴格鎖定)
+   ========================================= */
+:root {
+  /* --- 亮色模式 --- */
+  --primary-color: #03A6A6;
+  --bg-color: #f5f5f7; 
+  --card-bg: #ffffff;
+  --text-main: #222222;
+  --text-sub: #666666;
+  --border-color: #eeeeee;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --accent-color: #4a90e2;
+  --transition-speed: 0.3s;
+}
+
+[data-theme="dark"] {
+  /* --- 深色模式 (鎖定您指定的配色) --- */
+  --primary-color: #167F7F;
+  --bg-color: #121212;
+  --card-bg: #1e1e1e;
+  --text-main: #f0f0f0;
+  --text-sub: #aaaaaa;
+  --border-color: #333333;
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --accent-color: #6ab0ff;
+}
+
+/* =========================================
+   2. 全域設定
+   ========================================= */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  transition: background-color var(--transition-speed), color var(--transition-speed);
+}
+
+.app {
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================================
+   3. Header 與 開關樣式
+   ========================================= */
+.app-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.app-header h1 {
+  margin: 0 0 16px 0;
+  font-size: 1.6rem;
+  color: var(--text-main);
+}
+
+/* --- Segmented Control --- */
+.segmented-control-wrapper {
+  margin-bottom: 12px;
+  overflow-x: auto; 
+  white-space: nowrap;
+  padding-bottom: 5px;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  justify-content: center;
+}
+
+.segmented-control {
+  display: inline-flex;
+  background-color: rgba(0,0,0,0.05);
+  padding: 4px;
+  border-radius: 8px;
+  user-select: none;
+  border: 1px solid var(--border-color);
+}
+[data-theme="dark"] .segmented-control {
+  background-color: rgba(255,255,255,0.1);
+}
+.segmented-control input[type="radio"] { display: none; }
+.segmented-control label {
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-sub);
+  transition: all 0.3s ease;
+  border-radius: 6px;
+}
+.segmented-control input:checked + label {
+  background-color: var(--card-bg);
+  color: var(--primary-color);
+  box-shadow: 0 2px 5px var(--shadow-color);
+}
+
+/* --- Toggle Switch (淺色/深色) --- */
+.theme-switch-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+.mode-label {
+  font-size: 0.9rem;
+  color: var(--text-sub);
+}
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px; width: 18px;
+  left: 4px; bottom: 4px;
+  background-color: white;
+  transition: .4s;
+}
+input:checked + .slider { background-color: var(--primary-color); }
+input:checked + .slider:before { transform: translateX(24px); }
+.slider.round { border-radius: 34px; }
+.slider.round:before { border-radius: 50%; }
+
+
+/* =========================================
+   4. 主要內容區 & 容器樣式
+   ========================================= */
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 20px; 
+}
+
+/* 簡單版容器 */
+#simpleModeGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+/* 純文字版容器 (hiddenen) - 樣式與簡單版保持一致 */
+#textOnlyModeGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+/* 顯示與隱藏控制 */
+#divinationModeDisplay, #simpleModeGroup, #textOnlyModeGroup {
+  width: 100%;
+}
+
+/* 卡組區 */
+.deck-section {
+  display: flex; justify-content: center; margin-bottom: 0;
+}
+.deck-stack {
+  position: relative; width: 140px; aspect-ratio: 2/3; cursor: pointer;
+  border-radius: 12px; box-shadow: 0 4px 10px var(--shadow-color);
+  transition: transform 0.1s ease;
+}
+.deck-stack img {
+  width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 12px;
+}
+.deck-stack:active { transform: translateY(2px) scale(0.98); }
+
+/* 卡牌清單 */
+.cardlist {
+  border: 1px solid var(--border-color);
+  border-radius: 8px; background: var(--card-bg);
+  overflow: hidden; margin: 4px 0;
+}
+.cardlist summary {
+  padding: 12px; cursor: pointer; font-weight: bold; background: rgba(0,0,0,0.02);
+  color: var(--text-main);
+}
+.cardlist-body {
+  max-height: 200px; overflow-y: auto; padding: 8px;
+  display: flex; flex-wrap: wrap; gap: 8px; border-top: 1px solid var(--border-color);
+}
+.cardlist-item {
+  background: var(--bg-color); border: 1px solid var(--border-color);
+  border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+/* --- 卡片顯示區 --- */
+.card-display {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px; 
+}
+.card-inner {
+  width: 100%;
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 6px 16px var(--shadow-color);
+  text-align: center;
+  border: 1px solid var(--border-color);
+}
+
+.card-image-wrapper {
+  width: 100%;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  overflow: hidden;
+  display: none; 
+}
+.card-image-wrapper img {
+  width: 100%;
+  display: block;
+}
+.card-name {
+  font-size: 1.4rem;
+  margin: 0 0 12px;
+  color: var(--primary-color);
+}
+.card-description {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text-main);
+  white-space: pre-wrap; 
+  margin: 0;
+  text-align: left;
+}
+.card-inner.flip { animation: flipCard 0.4s ease-out; }
+@keyframes flipCard {
+  0% { transform: rotateY(90deg); opacity: 0; }
+  100% { transform: rotateY(0deg); opacity: 1; }
+}
+
+/* =========================================
+   5. 占卜版特定樣式
+   ========================================= */
+.selection-counter {
+  text-align: center; font-size: 1.1rem; font-weight: bold;
+  margin-bottom: 15px; color: var(--primary-color);
+}
+.full-deck-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+  gap: 10px; padding: 15px; 
+  margin-bottom: 20px;
+}
+
+.mini-card {
+  position: relative;
+  aspect-ratio: 2/3; 
+  border-radius: 6px; 
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 2px 5px var(--shadow-color);
+  transform-origin: center bottom;
+}
+
+.mini-card img {
+  width: 100%; height: 100%; object-fit: cover; border-radius: 6px; display: block;
+}
+
+.mini-card:hover {
+  transform: translateY(-10px) scale(1.1) rotate(2deg);
+  z-index: 10; 
+  box-shadow: 0 8px 16px var(--shadow-color);
+}
+
+.mini-card.selected {
+  border: 2px solid var(--primary-color);
+  box-shadow: 0 0 10px var(--primary-color); 
+  transform: translateY(-8px);
+}
+
+.test-card-detail {
+  background: var(--card-bg); border-radius: 12px; padding: 15px;
+  margin-top: 15px; min-height: 120px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  border-top: 5px solid var(--primary-color); color: var(--text-main);
+}
+
+.divination-full-results { margin-top: 30px; }
+.divination-full-results h3 { color: var(--primary-color); text-align: center; margin-bottom: 20px; }
+
+.result-card-unit {
+  background: var(--card-bg); 
+  padding: 20px; 
+  border-radius: 12px;
+  margin-bottom: 20px; 
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+.result-card-unit h4 {
+  margin-top: 0; 
+  color: var(--primary-color); 
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+.result-text {
+  white-space: pre-wrap; 
+  line-height: 1.8;
+  color: var(--text-main);
+}
+
+/* =========================================
+   6. 底部控制與 Footer
+   ========================================= */
+.controls { display: flex; gap: 8px; justify-content: center; width: 100%; }
+.btn {
+  border: none; border-radius: 25px; padding: 12px 24px; font-size: 1rem;
+  cursor: pointer; transition: opacity 0.2s; font-weight: bold;
+}
+.btn.primary { background: var(--primary-color); color: #fff; width: 100%; }
+.btn.secondary { background: #ccc; color: #333; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.status {
+  text-align: center; font-size: 0.9rem; color: var(--text-sub);
+  margin-top: 20px;
+  display: flex; flex-direction: column; gap: 8px; align-items: center;
+}
+
+.toggle { display: inline-flex; align-items: center; cursor: pointer; gap: 8px; }
+
+.app-footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+  font-size: 0.75rem;
+  color: #999;
+}
