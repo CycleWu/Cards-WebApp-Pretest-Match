@@ -20,19 +20,35 @@
         <span class="mode-label">深色</span>
       </div>
       
-      <div class="segmented-control-wrapper">
+      <div class="tiers-container">
+        <div class="segmented-control">
+          <input type="radio" name="lang" id="lang-zh" value="zh" checked>
+          <label for="lang-zh">繁中</label>
+
+          <input type="radio" name="lang" id="lang-ja" value="ja">
+          <label for="lang-ja">日本語</label>
+
+          <input type="radio" name="lang" id="lang-en" value="en">
+          <label for="lang-en">English</label>
+
+          <input type="radio" name="lang" id="lang-ko" value="ko" disabled>
+          <label for="lang-ko">한국어</label>
+        </div>
+
+        <div class="segmented-control">
+          <input type="radio" name="source" id="source-classic" value="classic" checked>
+          <label for="source-classic">經典卡</label>
+
+          <input type="radio" name="source" id="source-hidden" value="hidden">
+          <label for="source-hidden">隱言經</label>
+        </div>
+
         <div class="segmented-control">
           <input type="radio" name="mode" id="mode-simple" value="simple" checked>
-          <label for="mode-simple">簡單版</label>
+          <label for="mode-simple">簡單模式</label>
 
           <input type="radio" name="mode" id="mode-divination" value="divination">
-          <label for="mode-divination">占卜版</label>
-
-          <input type="radio" name="mode" id="mode-hiddenzh" value="hiddenzh">
-          <label for="mode-hiddenzh">隱言經 (中)</label>
-          
-          <input type="radio" name="mode" id="mode-hiddenen" value="hiddenen">
-          <label for="mode-hiddenen">隱言經 (英)</label>
+          <label for="mode-divination">占卜模式</label>
         </div>
       </div>
     </header>
