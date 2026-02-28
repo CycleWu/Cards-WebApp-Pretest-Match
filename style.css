@@ -352,3 +352,22 @@ input:checked + .slider:before { transform: translateX(24px); }
   font-size: 0.75rem;
   color: #999;
 }
+
+/* === 新增：三層選單與禁用狀態樣式 === */
+.tiers-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 600px;
+}
+
+/* 針對禁用的選項 (disabled) 設定暗色與無法點擊效果 */
+.segmented-control input[type="radio"]:disabled + label {
+  opacity: 0.3;
+  cursor: not-allowed;
+  background-color: transparent !important;
+  color: var(--text-sub) !important;
+  box-shadow: none !important;
+}
