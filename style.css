@@ -360,7 +360,30 @@ input:checked + .slider:before { transform: translateX(24px); }
   gap: 12px;
   margin-bottom: 20px;
   width: 100%;
-  max-width: 600px;
+  align-items: center; /* 讓控制項在容器內置中 */
+}
+
+.segmented-control {
+  display: inline-flex; /* 關鍵：寬度由內容決定 */
+  width: fit-content;   /* 關鍵：寬度由內容決定 */
+  background-color: rgba(0,0,0,0.05);
+  padding: 4px;
+  border-radius: 10px;
+  user-select: none;
+  border: 1px solid var(--border-color);
+}
+
+.segmented-control label {
+  padding: 6px 16px;    /* 增加左右內距讓文字呼吸 */
+  min-width: 60px;      /* 設定最小寬度避免太擠 */
+  text-align: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-sub);
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  white-space: nowrap;  /* 防止文字折行 */
 }
 
 /* 針對禁用的選項 (disabled) 設定暗色與無法點擊效果 */
