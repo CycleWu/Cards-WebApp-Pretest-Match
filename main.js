@@ -5,7 +5,7 @@ const IMAGE_BASE_PATH = "./imgs";
 
 const CARD_BACKS = {
   classic_zh: `${IMAGE_BASE_PATH}/zh_cards_Back.png`,
-  classic_ja: `${IMAGE_BASE_PATH}/ja_cards_Back.png`,
+  classic_ja: `${IMAGE_BASE_PATH}/jp_cards_Back.png`,
   hwLight: `${IMAGE_BASE_PATH}/HW_Cover_Light.png`,
   hwDark: `${IMAGE_BASE_PATH}/HW_Cover_Dark.png`
 };
