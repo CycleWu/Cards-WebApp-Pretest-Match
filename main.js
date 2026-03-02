@@ -5,7 +5,7 @@ const IMAGE_BASE_PATH = "./imgs";
 
 const CARD_BACKS = {
   classic_zh: `${IMAGE_BASE_PATH}/zh_cards_Back.png`,
-  classic_ja: `${IMAGE_BASE_PATH}/jp_Back_card.png`,
+  classic_jp: `${IMAGE_BASE_PATH}/jp_Back_card.png`,
   hwLight: `${IMAGE_BASE_PATH}/HW_Cover_Light.png`,
   hwDark: `${IMAGE_BASE_PATH}/HW_Cover_Dark.png`
 };
@@ -98,7 +98,7 @@ function validateAndApplyState() {
   const classicRadio = document.getElementById('source-classic');
   const hiddenRadio = document.getElementById('source-hidden');
 
-  if (lang === 'ja') {
+  if (lang === 'jp') {
     // 日文沒有隱言經
     hiddenRadio.disabled = true;
     classicRadio.disabled = false;
@@ -160,7 +160,7 @@ function getTargetJsonPath() {
   const { lang, source } = appState;
   if (source === 'classic') {
     if (lang === 'zh') return './cards_filled.json';
-    if (lang === 'ja') return './cards_jp.json';
+    if (lang === 'jp') return './cards_jp.json';
   } else if (source === 'hidden') {
     if (lang === 'zh') return './hidden_words_zh.json';
     if (lang === 'en') return './hidden_words_en.json';
@@ -260,7 +260,7 @@ function getCurrentBackImage() {
     return isDarkTheme ? CARD_BACKS.hwDark : CARD_BACKS.hwLight;
   } else {
     // 經典卡 source === 'classic'
-    return (lang === 'ja') ? CARD_BACKS.classic_ja : CARD_BACKS.classic_zh;
+    return (lang === 'ja') ? CARD_BACKS.classic_jp : CARD_BACKS.classic_zh;
   }
 }
 
