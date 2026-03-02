@@ -350,17 +350,6 @@ function updateSelectionUI() {
   }
 }
 
-// === 輔助與重置函式 ===
-function updateCardBackImage() {
-  if (!deckTextOnlyImg) return;
-  const isDarkTheme = document.body.getAttribute("data-theme") === "dark";
-  if (appState.source === 'hidden') {
-    deckTextOnlyImg.src = isDarkTheme ? CARD_BACKS.hwDark : CARD_BACKS.hwLight;
-  } else {
-    deckTextOnlyImg.src = CARD_BACKS.default;
-  }
-}
-
 function resetDisplays() {
   if (cardNameEl) cardNameEl.textContent = "等待抽卡...";
   if (cardDescriptionEl) cardDescriptionEl.textContent = "請點擊下方按鈕或卡組。";
