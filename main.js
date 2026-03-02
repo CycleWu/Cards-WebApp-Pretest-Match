@@ -13,7 +13,7 @@ const CARD_BACKS = {
 // === 狀態管理 (核心) ===
 // 記錄三層選項的當前狀態
 let appState = {
-  lang: "zh",      // zh | ja | en | ko
+  lang: "zh",      // zh | jp | en | ko
   source: "classic",// classic | hidden
   mode: "simple"    // simple | divination
 };
@@ -260,7 +260,7 @@ function getCurrentBackImage() {
     return isDarkTheme ? CARD_BACKS.hwDark : CARD_BACKS.hwLight;
   } else {
     // 經典卡 source === 'classic'
-    return (lang === 'ja') ? CARD_BACKS.classic_jp : CARD_BACKS.classic_zh;
+    return (lang === 'jp') ? CARD_BACKS.classic_jp : CARD_BACKS.classic_zh;
   }
 }
 
