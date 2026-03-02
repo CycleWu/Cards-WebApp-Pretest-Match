@@ -4,7 +4,8 @@
 const IMAGE_BASE_PATH = "./imgs";
 
 const CARD_BACKS = {
-  default: `${IMAGE_BASE_PATH}/zh_cards_Back.png`,
+  classic_zh: `${IMAGE_BASE_PATH}/zh_cards_Back.png`,
+  classic_ja: `${IMAGE_BASE_PATH}/ja_cards_Back.png`,
   hwLight: `${IMAGE_BASE_PATH}/HW_Cover_Light.png`,
   hwDark: `${IMAGE_BASE_PATH}/HW_Cover_Dark.png`
 };
@@ -250,6 +251,31 @@ function renderCardTextOnly(card) {
   triggerAnimation(textCardNameEl.parentElement);
 }
 
+// === 輔助函式：取得當前應使用的背面圖片路徑 ===
+function getCurrentBackImage() {
+  const { lang, source } = appState;
+  const isDarkTheme = document.body.getAttribute("data-theme") === "dark";
+
+  if (source === 'hidden') {
+    return isDarkTheme ? CARD_BACKS.hwDark : CARD_BACKS.hwLight;
+  } else {
+    // 經典卡 source === 'classic'
+    return (lang === 'ja') ? CARD_BACKS.classic_ja : CARD_BACKS.classic_zh;
+  }
+}
+
+// === 修改：更新卡片背面顯示 ===
+function updateCardBackImage() {
+  const backImgPath = getCurrentBackImage();
+  
+  // 更新簡單模式的背面圖
+  const deckImg = document.querySelector('#deck img');
+  const deckTextOnlyImg = document.querySelector('#deckTextOnly img');
+  
+  if (deckImg) deckImg.src = backImgPath;
+  if (deckTextOnlyImg) deckTextOnlyImg.src = backImgPath;
+}
+
 // === 占卜邏輯 ===
 function renderFullDeck() {
   if(!cardSpread) return;
@@ -261,6 +287,9 @@ function renderFullDeck() {
   testCardDetail.innerHTML = "<p>準備中...</p>";
   updateSelectionUI();
 
+  // 取得正確的背面圖
+  const currentBack = getCurrentBackImage();
+
   const shuffledIndices = [...Array(currentCardPool.length).keys()].sort(() => Math.random() - 0.5);
 
   shuffledIndices.forEach((poolIndex) => {
@@ -268,7 +297,7 @@ function renderFullDeck() {
     cardDiv.className = "mini-card";
 
     const img = document.createElement("img");
-    img.src = CARD_BACKS.default; 
+    img.src = currentBack; // 套用正確的語系背面
     img.alt = "Card Back";
     img.ondragstart = () => false;
     cardDiv.appendChild(img);
