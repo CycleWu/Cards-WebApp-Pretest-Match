@@ -201,9 +201,41 @@ function onDataLoaded() {
   setStatus(`已載入牌庫：共 ${currentCardPool.length} 張。`);
   setDrawEnabled(true);
   
+  // 1. 如果是占卜模式，渲染完整牌組供挑選
   if (appState.mode === "divination") {
     renderFullDeck();
   }
+  
+  // 2. 恢復功能：渲染卡牌清單（支援中日文）
+  renderCardList();
+}
+
+// === 新增：渲染卡牌清單功能 ===
+function renderCardList() {
+  const cardListContainer = document.getElementById("cardList");
+  if (!cardListContainer) return;
+
+  cardListContainer.innerHTML = ""; // 清空舊內容
+
+  currentCardPool.forEach((card, index) => {
+    const item = document.createElement("div");
+    item.className = "cardlist-item";
+    // 顯示卡片名稱，若無名稱則顯示編號
+    item.textContent = card.name || `Card ${index + 1}`;
+    
+    // 點擊清單項目直接顯示該張卡片
+    item.onclick = () => {
+      if (appState.source === "hidden") {
+        renderCardTextOnly(card);
+      } else {
+        renderCardWithImage(card);
+      }
+      // 點擊後自動捲動到顯示區域
+      document.getElementById("cardDisplay")?.scrollIntoView({ behavior: 'smooth' });
+    };
+    
+    cardListContainer.appendChild(item);
+  });
 }
 
 // === 抽卡渲染邏輯 ===
