@@ -406,13 +406,15 @@ function renderFullDeck() {
   if(!cardSpread) return;
   cardSpread.innerHTML = "";
   selectedIndices = [];
-
+  // 隱藏結果區塊
   document.getElementById("divinationFullResults").style.display = "none";
-  testCardDetail.style.display = "block";
-  testCardDetail.innerHTML = "<p>準備中...</p>";
+  // 移除或隱藏「準備中」文字區塊
+  const testCardDetail = document.getElementById("testCardDetail");
+  if (testCardDetail) testCardDetail.style.display = "none";
+
   updateSelectionUI();
 
-  // 取得當前正確的卡背圖片
+  // 取得正確的卡背
   const currentBackImg = getCurrentBackImage();
 
   const shuffledIndices = [...Array(currentCardPool.length).keys()].sort(() => Math.random() - 0.5);
@@ -422,7 +424,6 @@ function renderFullDeck() {
     cardDiv.className = "mini-card";
 
     const img = document.createElement("img");
-    // 這裡原本是寫死的 CARD_BACKS.default，改為使用動態變數
     img.src = currentBackImg; 
     img.alt = "Card Back";
     img.ondragstart = () => false;
@@ -444,7 +445,6 @@ function handleSelect(poolIndex, element) {
   updateSelectionUI();
 }
 
-// === 修正：更新選取狀態與顯示結果 ===
 function updateSelectionUI() {
   const count = selectedIndices.length;
   const lang = appState.lang;
@@ -460,27 +460,21 @@ function updateSelectionUI() {
 
   const resultsArea = document.getElementById("divinationFullResults");
   const container = document.getElementById("resultsContainer");
-  const testCardDetail = document.getElementById("testCardDetail"); // 取得準備中區塊
 
-  // 當選滿 6 張時的邏輯
   if (count === 6) {
-    // === 關鍵修正：將結果區塊顯示出來，並隱藏準備中文字 ===
+    // 顯示結果區塊
     resultsArea.style.display = "block";
-    if (testCardDetail) testCardDetail.style.display = "none";
 
-    // 顯示結果標題
+    // 填充翻譯文字與內容
     resultsArea.querySelector('h3').textContent = texts.ui_divination_result_title;
-    // 顯示重置按鈕文字
     resultsArea.querySelector('button').textContent = texts.ui_divination_reset;
     container.innerHTML = "";
 
     selectedIndices.forEach((cardIdx, i) => {
       const card = currentCardPool[cardIdx];
       const cardDiv = document.createElement("div");
-      
       cardDiv.className = "result-card-unit";
 
-      // 處理「第 X 張」的翻譯
       let orderText = `Card ${i + 1}`;
       if(lang === 'zh') orderText = `第 ${i + 1} 張`;
       if(lang === 'jp') orderText = `第 ${i + 1} 枚`;
@@ -492,12 +486,10 @@ function updateSelectionUI() {
       container.appendChild(cardDiv);
     });
     
-    // 平滑捲動到結果區塊
     resultsArea.scrollIntoView({ behavior: 'smooth' });
   } else {
-    // === 新增防呆：如果取消選取低於 6 張，要再次把結果區塊隱藏 ===
+    // 未滿 6 張則保持隱藏
     resultsArea.style.display = "none";
-    if (testCardDetail) testCardDetail.style.display = "block";
   }
 }
 
