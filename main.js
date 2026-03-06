@@ -13,7 +13,7 @@ const CARD_BACKS = {
 // === 多國語系字典 ===
 const UI_TEXTS = {
   zh: {
-    ui_title: "巴哈伊經典卡抽卡",
+    ui_title: "經典卡抽卡",
     ui_source_classic: "經典卡",
     ui_source_hidden: "隱言經",
     ui_mode_simple: "簡單模式",
@@ -27,7 +27,7 @@ const UI_TEXTS = {
     ui_image_toggle: "顯示卡牌圖片"
   },
   jp: {
-    ui_title: "バハイ聖典カード",
+    ui_title: "聖典カード",
     ui_source_classic: "聖典カード",
     ui_source_hidden: "隠言経",
     ui_mode_simple: "シンプル",
@@ -149,6 +149,30 @@ function handleStateChange(category, value) {
   validateAndApplyState();
 }
 
+// === 更新介面語系的函式 ===
+function updateUILanguage() {
+  const lang = appState.lang;
+  const texts = UI_TEXTS[lang] || UI_TEXTS.zh;
+
+  // 1. 更新所有帶有 data-i18n 屬性的元素
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (texts[key]) {
+      el.textContent = texts[key];
+    }
+  });
+
+  // 2. 特殊更新：占卜介面的計數器提示語
+  if (appState.mode === 'divination') {
+    updateSelectionUI(); // 呼叫原本的 UI 更新函式來同步文字
+  }
+  
+  // 3. 更新狀態列文字 (如果正在載入中)
+  if (isLoading) {
+    setStatus(texts.ui_status_init);
+  }
+}
+
 // 防呆機制與狀態套用
 function validateAndApplyState() {
   const { lang, source } = appState;
@@ -176,43 +200,9 @@ function validateAndApplyState() {
   // 同步 UI 狀態 (避免 JS 強制切換但畫面沒跟上)
   document.getElementById(`source-${appState.source}`).checked = true;
 
-  // 2. 切換畫面與載入資料
-  resetDisplays();
-  updateLayout();
-  loadData();
-}
-
-// === 更新介面語系的函式 ===
-function updateUILanguage() {
-  const lang = appState.lang;
-  const texts = UI_TEXTS[lang] || UI_TEXTS.zh;
-
-  // 1. 更新所有帶有 data-i18n 屬性的元素
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if (texts[key]) {
-      el.textContent = texts[key];
-    }
-  });
-
-  // 2. 特殊更新：占卜介面的計數器提示語
-  if (appState.mode === 'divination') {
-    updateSelectionUI(); // 呼叫原本的 UI 更新函式來同步文字
-  }
-  
-  // 3. 更新狀態列文字 (如果正在載入中)
-  if (isLoading) {
-    setStatus(texts.ui_status_init);
-  }
-}
-
-// === 修改：在狀態變更時執行更新 ===
-function validateAndApplyState() {
-  // ... 您原本的 logic (判斷 jp/en 鎖定狀態) ...
-
   // 執行介面翻譯
   updateUILanguage();
-  
+  // 切換畫面與載入資料
   resetDisplays();
   updateLayout();
   loadData();
