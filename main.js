@@ -10,6 +10,19 @@ const CARD_BACKS = {
   hwDark: `${IMAGE_BASE_PATH}/HW_Cover_Dark.png`
 };
 
+// === 輔助函式：取得當前正確的卡背 ===
+function getCurrentBackImage() {
+  const isDarkTheme = document.body.getAttribute("data-theme") === "dark";
+  
+  if (appState.source === 'hidden') {
+    // 隱言經：根據深淺色模式切換
+    return isDarkTheme ? CARD_BACKS.hwDark : CARD_BACKS.hwLight;
+  } else {
+    // 經典卡：使用預設卡背
+    return CARD_BACKS.default; 
+  }
+}
+
 // === 狀態管理 (核心) ===
 // 記錄三層選項的當前狀態
 let appState = {
@@ -298,14 +311,22 @@ function getCurrentBackImage() {
 
 // === 修改：更新卡片背面顯示 ===
 function updateCardBackImage() {
-  const backImgPath = getCurrentBackImage();
+  // 取得當前應該顯示的卡背
+  const currentBackImg = getCurrentBackImage();
   
-  // 更新簡單模式的背面圖
-  const deckImg = document.querySelector('#deck img');
+  // 1. 更新隱言經牌組
   const deckTextOnlyImg = document.querySelector('#deckTextOnly img');
-  
-  if (deckImg) deckImg.src = backImgPath;
-  if (deckTextOnlyImg) deckTextOnlyImg.src = backImgPath;
+  if (deckTextOnlyImg) deckTextOnlyImg.src = currentBackImg;
+
+  // 2. 更新經典卡牌組
+  const deckImg = document.querySelector('#deck img');
+  if (deckImg) deckImg.src = currentBackImg;
+
+  // 3. 更新占卜模式的所有卡牌
+  const divinationCards = document.querySelectorAll('#cardSpread .mini-card img');
+  divinationCards.forEach(img => {
+    img.src = currentBackImg;
+  });
 }
 
 // === 占卜邏輯 ===
@@ -319,8 +340,8 @@ function renderFullDeck() {
   testCardDetail.innerHTML = "<p>準備中...</p>";
   updateSelectionUI();
 
-  // 取得正確的背面圖
-  const currentBack = getCurrentBackImage();
+  // 取得當前正確的卡背圖片
+  const currentBackImg = getCurrentBackImage();
 
   const shuffledIndices = [...Array(currentCardPool.length).keys()].sort(() => Math.random() - 0.5);
 
@@ -329,7 +350,8 @@ function renderFullDeck() {
     cardDiv.className = "mini-card";
 
     const img = document.createElement("img");
-    img.src = currentBack; // 套用正確的語系背面
+    // 這裡原本是寫死的 CARD_BACKS.default，改為使用動態變數
+    img.src = currentBackImg; 
     img.alt = "Card Back";
     img.ondragstart = () => false;
     cardDiv.appendChild(img);
