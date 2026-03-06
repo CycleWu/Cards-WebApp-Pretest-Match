@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>巴哈伊經典卡</title>
+  <h1 data-i18n="ui_title">經典卡抽卡</h1>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -37,18 +37,18 @@
 
         <div class="segmented-control">
           <input type="radio" name="source" id="source-classic" value="classic" checked>
-          <label for="source-classic">經典卡</label>
+          <label for="source-classic" data-i18n="ui_source_classic">經典卡</label>
 
           <input type="radio" name="source" id="source-hidden" value="hidden">
-          <label for="source-hidden">隱言經</label>
+          <label for="source-hidden" data-i18n="ui_source_hidden">隱言經</label>
         </div>
 
         <div class="segmented-control">
           <input type="radio" name="mode" id="mode-simple" value="simple" checked>
-          <label for="mode-simple">簡單模式</label>
+          <label for="mode-simple" data-i18n="ui_mode_simple">簡單模式</label>
 
           <input type="radio" name="mode" id="mode-divination" value="divination">
-          <label for="mode-divination">占卜模式</label>
+          <label for="mode-divination" data-i18n="ui_mode_divination">占卜模式</label>
         </div>
       </div>
     </header>
@@ -78,7 +78,7 @@
         </section>
 
         <details class="cardlist" id="cardListPanel">
-          <summary>卡牌清單</summary>
+          <summary data-i18n="ui_cardlist_summary">卡牌清單</summary>
           <div id="cardList" class="cardlist-body"></div>
         </details>
 
@@ -95,9 +95,7 @@
         </section>
 
         <section class="controls">
-          <button id="drawButton" class="btn primary" disabled>
-            抽卡
-          </button>
+          <button id="drawButton" class="btn primary" data-i18n="ui_draw_btn">抽卡</button>
         </section>
       </div>
 
@@ -118,9 +116,7 @@
         </section>
 
         <section class="controls">
-          <button id="drawButtonTextOnly" class="btn primary">
-            抽卡
-          </button>
+          <button id="drawButtonTextOnly" class="btn primary" data-i18n="ui_draw_btn">抽卡</button>
         </section>
       </div>
       
