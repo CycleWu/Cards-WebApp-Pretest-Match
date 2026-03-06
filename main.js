@@ -444,6 +444,7 @@ function handleSelect(poolIndex, element) {
   updateSelectionUI();
 }
 
+// === 修正：更新選取狀態與顯示結果 ===
 function updateSelectionUI() {
   const count = selectedIndices.length;
   const lang = appState.lang;
@@ -453,18 +454,24 @@ function updateSelectionUI() {
     if (count < 6) {
       selectionCounter.textContent = `${texts.ui_divination_hint} (${count} / 6)`;
     } else {
-      selectionCounter.textContent = "✦ Done ✦"; // 或者加入字典
+      selectionCounter.textContent = "✦ Done ✦"; 
     }
   }
 
   const resultsArea = document.getElementById("divinationFullResults");
   const container = document.getElementById("resultsContainer");
+  const testCardDetail = document.getElementById("testCardDetail"); // 取得準備中區塊
 
+  // 當選滿 6 張時的邏輯
   if (count === 6) {
-      // 顯示結果標題
-      resultsArea.querySelector('h3').textContent = texts.ui_divination_result_title;
-      // 顯示重置按鈕文字
-      resultsArea.querySelector('button').textContent = texts.ui_divination_reset;
+    // === 關鍵修正：將結果區塊顯示出來，並隱藏準備中文字 ===
+    resultsArea.style.display = "block";
+    if (testCardDetail) testCardDetail.style.display = "none";
+
+    // 顯示結果標題
+    resultsArea.querySelector('h3').textContent = texts.ui_divination_result_title;
+    // 顯示重置按鈕文字
+    resultsArea.querySelector('button').textContent = texts.ui_divination_reset;
     container.innerHTML = "";
 
     selectedIndices.forEach((cardIdx, i) => {
@@ -474,17 +481,23 @@ function updateSelectionUI() {
       cardDiv.className = "result-card-unit";
 
       // 處理「第 X 張」的翻譯
-        let orderText = `Card ${i + 1}`;
-        if(lang === 'zh') orderText = `第 ${i + 1} 張`;
-        if(lang === 'jp') orderText = `第 ${i + 1} 枚`;
+      let orderText = `Card ${i + 1}`;
+      if(lang === 'zh') orderText = `第 ${i + 1} 張`;
+      if(lang === 'jp') orderText = `第 ${i + 1} 枚`;
       
       cardDiv.innerHTML = `
         <h4>${orderText}：${card.name || ""}</h4>
-          <p class="result-text">${card.description || ""}</p>
-        `;
+        <p class="result-text">${card.description || ""}</p>
+      `;
       container.appendChild(cardDiv);
     });
+    
+    // 平滑捲動到結果區塊
     resultsArea.scrollIntoView({ behavior: 'smooth' });
+  } else {
+    // === 新增防呆：如果取消選取低於 6 張，要再次把結果區塊隱藏 ===
+    resultsArea.style.display = "none";
+    if (testCardDetail) testCardDetail.style.display = "block";
   }
 }
 
