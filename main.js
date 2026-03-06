@@ -10,6 +10,52 @@ const CARD_BACKS = {
   hwDark: `${IMAGE_BASE_PATH}/HW_Cover_Dark.png`
 };
 
+// === 多國語系字典 ===
+const UI_TEXTS = {
+  zh: {
+    ui_title: "巴哈伊經典卡抽卡",
+    ui_source_classic: "經典卡",
+    ui_source_hidden: "隱言經",
+    ui_mode_simple: "簡單模式",
+    ui_mode_divination: "占卜模式",
+    ui_draw_btn: "抽卡",
+    ui_cardlist_summary: "卡牌清單",
+    ui_divination_hint: "請憑直覺挑選 6 張卡片",
+    ui_divination_result_title: "✦ 您的占卜結果 ✦",
+    ui_divination_reset: "重新挑選",
+    ui_status_init: "正在初始化...",
+    ui_image_toggle: "顯示卡牌圖片"
+  },
+  jp: {
+    ui_title: "バハイ聖典カード",
+    ui_source_classic: "聖典カード",
+    ui_source_hidden: "隠言経",
+    ui_mode_simple: "シンプル",
+    ui_mode_divination: "占いモード",
+    ui_draw_btn: "カードを引く",
+    ui_cardlist_summary: "カードリスト",
+    ui_divination_hint: "直感で6枚のカードを選んでください",
+    ui_divination_result_title: "✦ 占い結果 ✦",
+    ui_divination_reset: "もう一度選ぶ",
+    ui_status_init: "初期化中...",
+    ui_image_toggle: "画像を表示する"
+  },
+  en: {
+    ui_title: "Bahá'í Cards",
+    ui_source_classic: "Classic Cards",
+    ui_source_hidden: "Hidden Words",
+    ui_mode_simple: "Simple Mode",
+    ui_mode_divination: "Divination",
+    ui_draw_btn: "Draw Card",
+    ui_cardlist_summary: "Card List",
+    ui_divination_hint: "Follow your intuition and pick 6 cards",
+    ui_divination_result_title: "✦ Your Reading ✦",
+    ui_divination_reset: "Start Over",
+    ui_status_init: "Initializing...",
+    ui_image_toggle: "Show Images"
+  }
+};
+
 // === 輔助函式：取得當前正確的卡背 ===
 function getCurrentBackImage() {
   const isDarkTheme = document.body.getAttribute("data-theme") === "dark";
@@ -131,6 +177,42 @@ function validateAndApplyState() {
   document.getElementById(`source-${appState.source}`).checked = true;
 
   // 2. 切換畫面與載入資料
+  resetDisplays();
+  updateLayout();
+  loadData();
+}
+
+// === 更新介面語系的函式 ===
+function updateUILanguage() {
+  const lang = appState.lang;
+  const texts = UI_TEXTS[lang] || UI_TEXTS.zh;
+
+  // 1. 更新所有帶有 data-i18n 屬性的元素
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (texts[key]) {
+      el.textContent = texts[key];
+    }
+  });
+
+  // 2. 特殊更新：占卜介面的計數器提示語
+  if (appState.mode === 'divination') {
+    updateSelectionUI(); // 呼叫原本的 UI 更新函式來同步文字
+  }
+  
+  // 3. 更新狀態列文字 (如果正在載入中)
+  if (isLoading) {
+    setStatus(texts.ui_status_init);
+  }
+}
+
+// === 修改：在狀態變更時執行更新 ===
+function validateAndApplyState() {
+  // ... 您原本的 logic (判斷 jp/en 鎖定狀態) ...
+
+  // 執行介面翻譯
+  updateUILanguage();
+  
   resetDisplays();
   updateLayout();
   loadData();
@@ -374,30 +456,42 @@ function handleSelect(poolIndex, element) {
 
 function updateSelectionUI() {
   const count = selectedIndices.length;
+  const lang = appState.lang;
+  const texts = UI_TEXTS[lang] || UI_TEXTS.zh;
+  
   if(selectionCounter) {
-    selectionCounter.textContent = count < 6 ? `請繼續挑選 (${count} / 6)` : "✦ 挑選完成 ✦";
+    if (count < 6) {
+      selectionCounter.textContent = `${texts.ui_divination_hint} (${count} / 6)`;
+    } else {
+      selectionCounter.textContent = "✦ Done ✦"; // 或者加入字典
+    }
   }
 
   const resultsArea = document.getElementById("divinationFullResults");
   const container = document.getElementById("resultsContainer");
 
-  if (count < 6) {
-    testCardDetail.style.display = "block";
-    resultsArea.style.display = "none";
-    testCardDetail.innerHTML = "<p>請繼續挑選，感受卡片的訊息...</p>";
-  } else {
-    testCardDetail.style.display = "none";
-    resultsArea.style.display = "block";
+  if (count === 6) {
+      // 顯示結果標題
+      resultsArea.querySelector('h3').textContent = texts.ui_divination_result_title;
+      // 顯示重置按鈕文字
+      resultsArea.querySelector('button').textContent = texts.ui_divination_reset;
     container.innerHTML = "";
 
     selectedIndices.forEach((cardIdx, i) => {
       const card = currentCardPool[cardIdx];
       const cardDiv = document.createElement("div");
+      
       cardDiv.className = "result-card-unit";
+
+      // 處理「第 X 張」的翻譯
+        let orderText = `Card ${i + 1}`;
+        if(lang === 'zh') orderText = `第 ${i + 1} 張`;
+        if(lang === 'jp') orderText = `第 ${i + 1} 枚`;
+      
       cardDiv.innerHTML = `
-        <h4>第 ${i + 1} 張：${card.name || "未命名"}</h4>
-        <p class="result-text">${card.description || ""}</p>
-      `;
+        <h4>${orderText}：${card.name || ""}</h4>
+          <p class="result-text">${card.description || ""}</p>
+        `;
       container.appendChild(cardDiv);
     });
     resultsArea.scrollIntoView({ behavior: 'smooth' });
