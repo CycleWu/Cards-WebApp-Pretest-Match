@@ -175,34 +175,36 @@ function updateUILanguage() {
 
 // 防呆機制與狀態套用
 function validateAndApplyState() {
-  const { lang, source } = appState;
-
-  // 1. 根據語言鎖定不支援的來源
+  const { lang } = appState;
   const classicRadio = document.getElementById('source-classic');
+  const classicLabel = document.querySelector('label[for="source-classic"]');
   const hiddenRadio = document.getElementById('source-hidden');
 
+  // 重置顯示狀態 (避免切換語系時殘留隱藏狀態)
+  classicRadio.style.display = '';
+  if (classicLabel) classicLabel.style.display = '';
+  hiddenRadio.disabled = false;
+  classicRadio.disabled = false;
+
   if (lang === 'jp') {
-    // 日文沒有隱言經
+    // 日本版：鎖定經典卡 (jp)
     hiddenRadio.disabled = true;
-    classicRadio.disabled = false;
     if (appState.source === 'hidden') appState.source = 'classic';
-  } else if (lang === 'en') {
-    // 英文沒有經典卡
-    classicRadio.disabled = true;
-    hiddenRadio.disabled = false;
-    if (appState.source === 'classic') appState.source = 'hidden';
-  } else {
-    // 繁中都有
-    classicRadio.disabled = false;
-    hiddenRadio.disabled = false;
+  } 
+  else if (lang === 'en') {
+    // 英文版：直接不顯示經典卡選項
+    classicRadio.style.display = 'none';
+    if (classicLabel) classicLabel.style.display = 'none';
+    
+    // 強制切換至隱言經
+    appState.source = 'hidden'; 
   }
 
-  // 同步 UI 狀態 (避免 JS 強制切換但畫面沒跟上)
-  document.getElementById(`source-${appState.source}`).checked = true;
+  // 確保選取狀態正確更新到 DOM
+  const currentSourceRadio = document.getElementById(`source-${appState.source}`);
+  if (currentSourceRadio) currentSourceRadio.checked = true;
 
-  // 執行介面翻譯
   updateUILanguage();
-  // 切換畫面與載入資料
   resetDisplays();
   updateLayout();
   loadData();
@@ -337,35 +339,28 @@ function onDrawCard() {
 }
 
 function renderCardWithImage(card) {
-  const name = card.name || "未命名卡牌";
-  cardNameEl.textContent = name;
-  cardDescriptionEl.textContent = card.description || "";
+  const displayArea = document.querySelector('#simpleModeGroup .card-display');
+  if (displayArea) displayArea.style.display = "block"; // 抽卡後才顯示
 
-  // 這裡動態讀取 JSON 中的 image 屬性，不用擔心檔名變更
-  if (card.image && toggleImageEl.checked) {
-    cardImageEl.src = `${IMAGE_BASE_PATH}/${card.image}`;
-    cardImageEl.alt = name;
-    cardImageWrapperEl.style.display = "block";
+  if (cardNameEl) cardNameEl.textContent = card.name || "";
+  if (cardDescriptionEl) cardDescriptionEl.textContent = card.description || "";
+
+  if (card.image && toggleImageEl && toggleImageEl.checked) {
+    if (cardImageWrapperEl) cardImageWrapperEl.style.display = "block";
+    if (cardImageEl) cardImageEl.src = `${IMAGE_BASE_PATH}/${card.image}`;
   } else {
-    cardImageWrapperEl.style.display = "none";
-    cardImageEl.removeAttribute("src");
+    if (cardImageWrapperEl) cardImageWrapperEl.style.display = "none";
   }
-
-  triggerAnimation(cardNameEl.parentElement);
+  triggerAnimation(cardImageWrapperEl);
 }
 
 function renderCardTextOnly(card) {
-  let prefix = "";
-  if (appState.lang === "en") prefix = "Hidden Words No. ";
-  else if (appState.lang === "zh") prefix = "隱言經 第 ";
+  const displayArea = document.querySelector('#textOnlyModeGroup .card-display');
+  if (displayArea) displayArea.style.display = "block"; // 抽卡後才顯示
 
-  let title = `${prefix}${card.name || card.id}`;
-  if (appState.lang === "zh") title += " 條";
-
-  textCardNameEl.textContent = title;
-  textCardDescriptionEl.textContent = card.description || "";
-
-  triggerAnimation(textCardNameEl.parentElement);
+  if (textCardNameEl) textCardNameEl.textContent = card.name || "";
+  if (textCardDescriptionEl) textCardDescriptionEl.textContent = card.description || "";
+  triggerAnimation(textOnlyModeGroup.querySelector('.card-inner'));
 }
 
 // === 輔助函式：取得當前應使用的背面圖片路徑 ===
@@ -494,13 +489,19 @@ function updateSelectionUI() {
 }
 
 function resetDisplays() {
-  if (cardNameEl) cardNameEl.textContent = "等待抽卡...";
-  if (cardDescriptionEl) cardDescriptionEl.textContent = "請點擊下方按鈕或卡組。";
-  if (cardImageWrapperEl) cardImageWrapperEl.style.display = "none";
-  if (cardImageEl) cardImageEl.removeAttribute("src");
+  // 取得簡單模式與隱言經的結果顯示區塊
+  const simpleDisplay = document.querySelector('#simpleModeGroup .card-display');
+  const textDisplay = document.querySelector('#textOnlyModeGroup .card-display');
 
-  if (textCardNameEl) textCardNameEl.textContent = "等待抽卡...";
-  if (textCardDescriptionEl) textCardDescriptionEl.textContent = "請點擊下方按鈕或卡組。";
+  if (simpleDisplay) simpleDisplay.style.display = "none"; // 直接隱藏，不佔空間
+  if (textDisplay) textDisplay.style.display = "none";
+
+  // 清空文字內容
+  if (cardNameEl) cardNameEl.textContent = "";
+  if (cardDescriptionEl) cardDescriptionEl.textContent = "";
+  if (cardImageWrapperEl) cardImageWrapperEl.style.display = "none";
+  if (textCardNameEl) textCardNameEl.textContent = "";
+  if (textCardDescriptionEl) textCardDescriptionEl.textContent = "";
 }
 
 function triggerAnimation(element) {
