@@ -42,7 +42,7 @@ const UI_TEXTS = {
   },
   en: {
     ui_title: "Bahá'í Cards",
-    ui_source_classic: "Classic Cards",
+    ui_source_classic: "Scripture Cards",
     ui_source_hidden: "Hidden Words",
     ui_mode_simple: "Simple Mode",
     ui_mode_divination: "Divination",
