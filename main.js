@@ -56,19 +56,6 @@ const UI_TEXTS = {
   }
 };
 
-// === 輔助函式：取得當前正確的卡背 ===
-function getCurrentBackImage() {
-  const isDarkTheme = document.body.getAttribute("data-theme") === "dark";
-  
-  if (appState.source === 'hidden') {
-    // 隱言經：根據深淺色模式切換
-    return isDarkTheme ? CARD_BACKS.hwDark : CARD_BACKS.hwLight;
-  } else {
-    // 經典卡：使用預設卡背
-    return CARD_BACKS.default; 
-  }
-}
-
 // === 狀態管理 (核心) ===
 // 記錄三層選項的當前狀態
 let appState = {
