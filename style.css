@@ -240,13 +240,16 @@ input:checked + .slider:before { transform: translateX(24px); }
   min-height: 300px; 
 }
 .card-inner {
-  width: 100%;
+  min-height: 250px; /* 給予最小高度 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 讓抽出的文字置中 */
   background: var(--card-bg);
   border-radius: 16px;
   padding: 24px;
   box-shadow: 0 6px 16px var(--shadow-color);
-  text-align: center;
   border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
 }
 
 .card-image-wrapper {
@@ -419,4 +422,10 @@ input:checked + .slider:before { transform: translateX(24px); }
   background-color: transparent !important;
   color: var(--text-sub) !important;
   box-shadow: none !important;
+}
+
+/* 隱藏 Segmented Control 中被設為 display: none 的元素 */
+.segmented-control input[style*="display: none"],
+.segmented-control input[style*="display: none"] + label {
+  display: none !important;
 }
