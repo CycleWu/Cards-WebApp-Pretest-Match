@@ -41,10 +41,10 @@ const UI_TEXTS = {
     ui_image_toggle: "画像を表示する"
   },
   en: {
-    ui_title: "Bahá'í Cards",
-    ui_source_classic: "Classic Cards",
+    ui_title: "Scripture Cards",
+    ui_source_classic: "Scripture Cards",
     ui_source_hidden: "Hidden Words",
-    ui_mode_simple: "Simple Mode",
+    ui_mode_simple: "Simple",
     ui_mode_divination: "Divination",
     ui_draw_btn: "Draw Card",
     ui_cardlist_summary: "Card List",
@@ -55,19 +55,6 @@ const UI_TEXTS = {
     ui_image_toggle: "Show Images"
   }
 };
-
-// === 輔助函式：取得當前正確的卡背 ===
-function getCurrentBackImage() {
-  const isDarkTheme = document.body.getAttribute("data-theme") === "dark";
-  
-  if (appState.source === 'hidden') {
-    // 隱言經：根據深淺色模式切換
-    return isDarkTheme ? CARD_BACKS.hwDark : CARD_BACKS.hwLight;
-  } else {
-    // 經典卡：使用預設卡背
-    return CARD_BACKS.default; 
-  }
-}
 
 // === 狀態管理 (核心) ===
 // 記錄三層選項的當前狀態
