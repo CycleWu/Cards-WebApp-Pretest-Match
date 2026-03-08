@@ -42,7 +42,7 @@ const UI_TEXTS = {
   },
   en: {
     ui_title: "Bahá'í Cards",
-    ui_source_classic: "Scripture Cards",
+    ui_source_classic: "Classic Cards",
     ui_source_hidden: "Hidden Words",
     ui_mode_simple: "Simple Mode",
     ui_mode_divination: "Divination",
@@ -56,6 +56,19 @@ const UI_TEXTS = {
   }
 };
 
+// === 輔助函式：取得當前正確的卡背 ===
+function getCurrentBackImage() {
+  const isDarkTheme = document.body.getAttribute("data-theme") === "dark";
+  
+  if (appState.source === 'hidden') {
+    // 隱言經：根據深淺色模式切換
+    return isDarkTheme ? CARD_BACKS.hwDark : CARD_BACKS.hwLight;
+  } else {
+    // 經典卡：使用預設卡背
+    return CARD_BACKS.default; 
+  }
+}
+
 // === 狀態管理 (核心) ===
 // 記錄三層選項的當前狀態
 let appState = {
@@ -65,7 +78,8 @@ let appState = {
 };
 
 let currentCardPool = []; 
-let dataCache = {};
+let dataCache = {};       
+let isLoading = false;
 let selectedIndices = [];
 
 // === DOM 取得 ===
@@ -95,7 +109,7 @@ const drawButtonTextOnlyEl = document.getElementById("drawButtonTextOnly");
 
 // 占卜版元素
 const cardSpread = document.getElementById("cardSpread");
-const divinationPlaceholder = document.getElementById("divinationPlaceholder");
+const testCardDetail = document.getElementById("testCardDetail");
 const selectionCounter = document.getElementById("selectionCounter");
 
 // === 初始化 ===
@@ -161,36 +175,34 @@ function updateUILanguage() {
 
 // 防呆機制與狀態套用
 function validateAndApplyState() {
-  const { lang } = appState;
+  const { lang, source } = appState;
+
+  // 1. 根據語言鎖定不支援的來源
   const classicRadio = document.getElementById('source-classic');
-  const classicLabel = document.querySelector('label[for="source-classic"]');
   const hiddenRadio = document.getElementById('source-hidden');
 
-  // 重置顯示狀態 (避免切換語系時殘留隱藏狀態)
-  classicRadio.style.display = '';
-  if (classicLabel) classicLabel.style.display = '';
-  hiddenRadio.disabled = false;
-  classicRadio.disabled = false;
-
   if (lang === 'jp') {
-    // 日本版：鎖定經典卡 (jp)
+    // 日文沒有隱言經
     hiddenRadio.disabled = true;
+    classicRadio.disabled = false;
     if (appState.source === 'hidden') appState.source = 'classic';
-  } 
-  else if (lang === 'en') {
-    // 英文版：直接不顯示經典卡選項
-    classicRadio.style.display = 'none';
-    if (classicLabel) classicLabel.style.display = 'none';
-    
-    // 強制切換至隱言經
-    appState.source = 'hidden'; 
+  } else if (lang === 'en') {
+    // 英文沒有經典卡
+    classicRadio.disabled = true;
+    hiddenRadio.disabled = false;
+    if (appState.source === 'classic') appState.source = 'hidden';
+  } else {
+    // 繁中都有
+    classicRadio.disabled = false;
+    hiddenRadio.disabled = false;
   }
 
-  // 確保選取狀態正確更新到 DOM
-  const currentSourceRadio = document.getElementById(`source-${appState.source}`);
-  if (currentSourceRadio) currentSourceRadio.checked = true;
+  // 同步 UI 狀態 (避免 JS 強制切換但畫面沒跟上)
+  document.getElementById(`source-${appState.source}`).checked = true;
 
+  // 執行介面翻譯
   updateUILanguage();
+  // 切換畫面與載入資料
   resetDisplays();
   updateLayout();
   loadData();
@@ -325,28 +337,35 @@ function onDrawCard() {
 }
 
 function renderCardWithImage(card) {
-  const displayArea = document.querySelector('#simpleModeGroup .card-display');
-  if (displayArea) displayArea.style.display = "block"; // 抽卡後才顯示
+  const name = card.name || "未命名卡牌";
+  cardNameEl.textContent = name;
+  cardDescriptionEl.textContent = card.description || "";
 
-  if (cardNameEl) cardNameEl.textContent = card.name || "";
-  if (cardDescriptionEl) cardDescriptionEl.textContent = card.description || "";
-
-  if (card.image && toggleImageEl && toggleImageEl.checked) {
-    if (cardImageWrapperEl) cardImageWrapperEl.style.display = "block";
-    if (cardImageEl) cardImageEl.src = `${IMAGE_BASE_PATH}/${card.image}`;
+  // 這裡動態讀取 JSON 中的 image 屬性，不用擔心檔名變更
+  if (card.image && toggleImageEl.checked) {
+    cardImageEl.src = `${IMAGE_BASE_PATH}/${card.image}`;
+    cardImageEl.alt = name;
+    cardImageWrapperEl.style.display = "block";
   } else {
-    if (cardImageWrapperEl) cardImageWrapperEl.style.display = "none";
+    cardImageWrapperEl.style.display = "none";
+    cardImageEl.removeAttribute("src");
   }
-  triggerAnimation(cardImageWrapperEl);
+
+  triggerAnimation(cardNameEl.parentElement);
 }
 
 function renderCardTextOnly(card) {
-  const displayArea = document.querySelector('#textOnlyModeGroup .card-display');
-  if (displayArea) displayArea.style.display = "block"; // 抽卡後才顯示
+  let prefix = "";
+  if (appState.lang === "en") prefix = "Hidden Words No. ";
+  else if (appState.lang === "zh") prefix = "隱言經 第 ";
 
-  if (textCardNameEl) textCardNameEl.textContent = card.name || "";
-  if (textCardDescriptionEl) textCardDescriptionEl.textContent = card.description || "";
-  triggerAnimation(textOnlyModeGroup.querySelector('.card-inner'));
+  let title = `${prefix}${card.name || card.id}`;
+  if (appState.lang === "zh") title += " 條";
+
+  textCardNameEl.textContent = title;
+  textCardDescriptionEl.textContent = card.description || "";
+
+  triggerAnimation(textCardNameEl.parentElement);
 }
 
 // === 輔助函式：取得當前應使用的背面圖片路徑 ===
@@ -384,36 +403,39 @@ function updateCardBackImage() {
 
 // === 占卜邏輯 ===
 function renderFullDeck() {
-  if(!cardSpread) return;
+  if (!cardSpread) return;
+
   cardSpread.innerHTML = "";
   selectedIndices = [];
 
-  // 1. 隱藏結果區塊（加入防呆：確保元素存在才去改 style）
-  const resultsArea = document.getElementById("divinationFullResults");
-  if (resultsArea) resultsArea.style.display = "none";
-  
-  // 2. 移除或隱藏「準備中」文字區塊（加入防呆）
-  const placeholder = document.getElementById("divinationPlaceholder");
-  if (placeholder) placeholder.style.display = "none";
+  // 隱藏結果區
+  const results = document.getElementById("divinationFullResults");
+  if (results) results.style.display = "none";
+
+  // 隱藏測試區（如果存在）
+  const testCardDetail = document.getElementById("testCardDetail");
+  if (testCardDetail) testCardDetail.style.display = "none";
 
   updateSelectionUI();
 
-  // 取得正確的卡背
   const currentBackImg = getCurrentBackImage();
 
-  const shuffledIndices = [...Array(currentCardPool.length).keys()].sort(() => Math.random() - 0.5);
+  const shuffledIndices = [...Array(currentCardPool.length).keys()]
+    .sort(() => Math.random() - 0.5);
 
   shuffledIndices.forEach((poolIndex) => {
     const cardDiv = document.createElement("div");
     cardDiv.className = "mini-card";
 
     const img = document.createElement("img");
-    img.src = currentBackImg; 
+    img.src = currentBackImg;
     img.alt = "Card Back";
     img.ondragstart = () => false;
+
     cardDiv.appendChild(img);
 
     cardDiv.onclick = () => handleSelect(poolIndex, cardDiv);
+
     cardSpread.appendChild(cardDiv);
   });
 }
@@ -444,54 +466,47 @@ function updateSelectionUI() {
 
   const resultsArea = document.getElementById("divinationFullResults");
   const container = document.getElementById("resultsContainer");
-  const placeholder = document.getElementById("divinationPlaceholder");
 
   if (count === 6) {
-    if (resultsArea) {
-      // 顯示結果區塊
-      resultsArea.style.display = "block";
-      // 填充翻譯文字與內容
-      resultsArea.querySelector('h3').textContent = texts.ui_divination_result_title;
-      resultsArea.querySelector('button').textContent = texts.ui_divination_reset;
-    }
-    if (placeholder) placeholder.style.display = "none";
+    // 顯示結果區塊
+    resultsArea.style.display = "block";
 
-    if (container) {
-      container.innerHTML = "";
-      selectedIndices.forEach((cardIdx, i) => {
-        const card = currentCardPool[cardIdx];
-        const cardDiv = document.createElement("div");
-        cardDiv.className = "result-card-unit";
-        
-        let orderText = `Card ${i + 1}`;
-        if(lang === 'zh') orderText = `第 ${i + 1} 張`;
-        if(lang === 'jp') orderText = `第 ${i + 1} 枚`;
-        
-        cardDiv.innerHTML = `<h4>${orderText}：${card.name || ""}</h4><p class="result-text">${card.description || ""}</p>`;
-        container.appendChild(cardDiv);
+    // 填充翻譯文字與內容
+    resultsArea.querySelector('h3').textContent = texts.ui_divination_result_title;
+    resultsArea.querySelector('button').textContent = texts.ui_divination_reset;
+    container.innerHTML = "";
+
+    selectedIndices.forEach((cardIdx, i) => {
+      const card = currentCardPool[cardIdx];
+      const cardDiv = document.createElement("div");
+      cardDiv.className = "result-card-unit";
+
+      let orderText = `Card ${i + 1}`;
+      if(lang === 'zh') orderText = `第 ${i + 1} 張`;
+      if(lang === 'jp') orderText = `第 ${i + 1} 枚`;
+      
+      cardDiv.innerHTML = `
+        <h4>${orderText}：${card.name || ""}</h4>
+        <p class="result-text">${card.description || ""}</p>
+      `;
+      container.appendChild(cardDiv);
     });
+    
     resultsArea.scrollIntoView({ behavior: 'smooth' });
   } else {
     // 未滿 6 張則保持隱藏
-    if (resultsArea) resultsArea.style.display = "none";
-    if (placeholder) placeholder.style.display = "none";
+    resultsArea.style.display = "none";
   }
 }
 
 function resetDisplays() {
-  // 取得簡單模式與隱言經的結果顯示區塊
-  const simpleDisplay = document.querySelector('#simpleModeGroup .card-display');
-  const textDisplay = document.querySelector('#textOnlyModeGroup .card-display');
-
-  if (simpleDisplay) simpleDisplay.style.display = "none"; // 直接隱藏，不佔空間
-  if (textDisplay) textDisplay.style.display = "none";
-
-  // 清空文字內容
-  if (cardNameEl) cardNameEl.textContent = "";
-  if (cardDescriptionEl) cardDescriptionEl.textContent = "";
+  if (cardNameEl) cardNameEl.textContent = "等待抽卡...";
+  if (cardDescriptionEl) cardDescriptionEl.textContent = "請點擊下方按鈕或卡組。";
   if (cardImageWrapperEl) cardImageWrapperEl.style.display = "none";
-  if (textCardNameEl) textCardNameEl.textContent = "";
-  if (textCardDescriptionEl) textCardDescriptionEl.textContent = "";
+  if (cardImageEl) cardImageEl.removeAttribute("src");
+
+  if (textCardNameEl) textCardNameEl.textContent = "等待抽卡...";
+  if (textCardDescriptionEl) textCardDescriptionEl.textContent = "請點擊下方按鈕或卡組。";
 }
 
 function triggerAnimation(element) {
