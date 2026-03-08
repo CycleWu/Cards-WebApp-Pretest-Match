@@ -388,11 +388,14 @@ function renderFullDeck() {
   if(!cardSpread) return;
   cardSpread.innerHTML = "";
   selectedIndices = [];
-  // 隱藏結果區塊
-  document.getElementById("divinationFullResults").style.display = "none";
-  // 移除或隱藏「準備中」文字區塊
-  const testCardDetail = document.getElementById("testCardDetail");
-  if (testCardDetail) testCardDetail.style.display = "none";
+
+  // 1. 隱藏結果區塊（加入防呆：確保元素存在才去改 style）
+  const resultsArea = document.getElementById("divinationFullResults");
+  if (resultsArea) resultsArea.style.display = "none";
+  
+  // 2. 移除或隱藏「準備中」文字區塊（加入防呆）
+  const placeholder = document.getElementById("divinationPlaceholder");
+  if (placeholder) placeholder.style.display = "none";
 
   updateSelectionUI();
 
@@ -442,36 +445,37 @@ function updateSelectionUI() {
 
   const resultsArea = document.getElementById("divinationFullResults");
   const container = document.getElementById("resultsContainer");
+  const placeholder = document.getElementById("divinationPlaceholder");
 
   if (count === 6) {
-    // 顯示結果區塊
-    resultsArea.style.display = "block";
+    if (resultsArea) {
+      // 顯示結果區塊
+      resultsArea.style.display = "block";
+      // 填充翻譯文字與內容
+      resultsArea.querySelector('h3').textContent = texts.ui_divination_result_title;
+      resultsArea.querySelector('button').textContent = texts.ui_divination_reset;
+    }
+    if (placeholder) placeholder.style.display = "none";
 
-    // 填充翻譯文字與內容
-    resultsArea.querySelector('h3').textContent = texts.ui_divination_result_title;
-    resultsArea.querySelector('button').textContent = texts.ui_divination_reset;
-    container.innerHTML = "";
-
-    selectedIndices.forEach((cardIdx, i) => {
-      const card = currentCardPool[cardIdx];
-      const cardDiv = document.createElement("div");
-      cardDiv.className = "result-card-unit";
-
-      let orderText = `Card ${i + 1}`;
-      if(lang === 'zh') orderText = `第 ${i + 1} 張`;
-      if(lang === 'jp') orderText = `第 ${i + 1} 枚`;
-      
-      cardDiv.innerHTML = `
-        <h4>${orderText}：${card.name || ""}</h4>
-        <p class="result-text">${card.description || ""}</p>
-      `;
-      container.appendChild(cardDiv);
+    if (container) {
+      container.innerHTML = "";
+      selectedIndices.forEach((cardIdx, i) => {
+        const card = currentCardPool[cardIdx];
+        const cardDiv = document.createElement("div");
+        cardDiv.className = "result-card-unit";
+        
+        let orderText = `Card ${i + 1}`;
+        if(lang === 'zh') orderText = `第 ${i + 1} 張`;
+        if(lang === 'jp') orderText = `第 ${i + 1} 枚`;
+        
+        cardDiv.innerHTML = `<h4>${orderText}：${card.name || ""}</h4><p class="result-text">${card.description || ""}</p>`;
+        container.appendChild(cardDiv);
     });
-    
     resultsArea.scrollIntoView({ behavior: 'smooth' });
   } else {
     // 未滿 6 張則保持隱藏
-    resultsArea.style.display = "none";
+    if (resultsArea) resultsArea.style.display = "none";
+    if (placeholder) placeholder.style.display = "none";
   }
 }
 
