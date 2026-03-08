@@ -419,4 +419,5 @@ input:checked + .slider:before { transform: translateX(24px); }
   background-color: transparent !important;
   color: var(--text-sub) !important;
   box-shadow: none !important;
+  display: none !important;
 }
