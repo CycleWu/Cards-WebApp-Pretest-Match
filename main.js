@@ -173,37 +173,40 @@ function updateUILanguage() {
   }
 }
 
-// 防呆機制與狀態套用
+// === 核心：防呆機制與狀態套用 ===
 function validateAndApplyState() {
   const { lang, source } = appState;
-
-  // 1. 根據語言鎖定不支援的來源
   const classicRadio = document.getElementById('source-classic');
   const hiddenRadio = document.getElementById('source-hidden');
+  
+  // 取得父層 label 以便隱藏
+  const classicLabel = classicRadio.nextElementSibling;
 
-  if (lang === 'jp') {
-    // 日文沒有隱言經
-    hiddenRadio.disabled = true;
-    classicRadio.disabled = false;
-    if (appState.source === 'hidden') appState.source = 'classic';
-  } else if (lang === 'en') {
-    // 英文沒有經典卡
-    classicRadio.disabled = true;
+  if (lang === 'en') {
+    // 2. 英文版：直接隱藏經典卡選項
+    classicRadio.style.display = 'none';
+    classicLabel.style.display = 'none';
     hiddenRadio.disabled = false;
     if (appState.source === 'classic') appState.source = 'hidden';
+  } else if (lang === 'jp') {
+    // 3. 日文版：保留隱言經但禁用 (無功能)
+    classicRadio.style.display = 'inline-block';
+    classicLabel.style.display = 'inline-block';
+    classicRadio.disabled = false;
+    hiddenRadio.disabled = true;
+    if (appState.source === 'hidden') appState.source = 'classic';
   } else {
-    // 繁中都有
+    // 繁中：全部顯示
+    classicRadio.style.display = 'inline-block';
+    classicLabel.style.display = 'inline-block';
     classicRadio.disabled = false;
     hiddenRadio.disabled = false;
   }
 
-  // 同步 UI 狀態 (避免 JS 強制切換但畫面沒跟上)
   document.getElementById(`source-${appState.source}`).checked = true;
 
-  // 執行介面翻譯
   updateUILanguage();
-  // 切換畫面與載入資料
-  resetDisplays();
+  resetDisplays(); // 1. 進入新狀態時先隱藏結果區
   updateLayout();
   loadData();
 }
@@ -336,29 +339,30 @@ function onDrawCard() {
   }
 }
 
+// === 修改渲染邏輯：抽卡後才顯示結果 ===
 function renderCardWithImage(card) {
-  const name = card.name || "未命名卡牌";
+  const displayArea = document.getElementById("cardDisplay");
+  displayArea.style.display = "flex"; // 抽卡後顯示
+
+  const name = card.name || "";
   cardNameEl.textContent = name;
   cardDescriptionEl.textContent = card.description || "";
 
-  // 這裡動態讀取 JSON 中的 image 屬性，不用擔心檔名變更
   if (card.image && toggleImageEl.checked) {
     cardImageEl.src = `${IMAGE_BASE_PATH}/${card.image}`;
-    cardImageEl.alt = name;
     cardImageWrapperEl.style.display = "block";
   } else {
     cardImageWrapperEl.style.display = "none";
-    cardImageEl.removeAttribute("src");
   }
 
   triggerAnimation(cardNameEl.parentElement);
 }
 
 function renderCardTextOnly(card) {
-  let prefix = "";
-  if (appState.lang === "en") prefix = "Hidden Words No. ";
-  else if (appState.lang === "zh") prefix = "隱言經 第 ";
+  const displayArea = document.getElementById("textCardDisplay");
+  displayArea.style.display = "flex"; // 抽卡後顯示
 
+  let prefix = appState.lang === "en" ? "Hidden Words No. " : "隱言經 第 ";
   let title = `${prefix}${card.name || card.id}`;
   if (appState.lang === "zh") title += " 條";
 
@@ -499,14 +503,16 @@ function updateSelectionUI() {
   }
 }
 
+// === 重設顯示狀態 ===
 function resetDisplays() {
-  if (cardNameEl) cardNameEl.textContent = "等待抽卡...";
-  if (cardDescriptionEl) cardDescriptionEl.textContent = "請點擊下方按鈕或卡組。";
-  if (cardImageWrapperEl) cardImageWrapperEl.style.display = "none";
-  if (cardImageEl) cardImageEl.removeAttribute("src");
-
-  if (textCardNameEl) textCardNameEl.textContent = "等待抽卡...";
-  if (textCardDescriptionEl) textCardDescriptionEl.textContent = "請點擊下方按鈕或卡組。";
+  // 隱藏所有模式的結果區塊
+  if (document.getElementById("cardDisplay")) 
+    document.getElementById("cardDisplay").style.display = "none";
+  if (document.getElementById("textCardDisplay")) 
+    document.getElementById("textCardDisplay").style.display = "none";
+  
+  const resultsArea = document.getElementById("divinationFullResults");
+  if (resultsArea) resultsArea.style.display = "none";
 }
 
 function triggerAnimation(element) {
