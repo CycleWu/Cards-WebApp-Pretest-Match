@@ -325,7 +325,7 @@ input:checked + .slider:before { transform: translateX(24px); }
   border-top: 5px solid var(--primary-color); color: var(--text-main);
 }
 
-.divination-full-results { margin-top: 30px; }
+.divination-full-results { margin-top: 30px; display: none; }
 .divination-full-results h3 { color: var(--primary-color); text-align: center; margin-bottom: 20px; }
 
 .result-card-unit {
@@ -419,5 +419,9 @@ input:checked + .slider:before { transform: translateX(24px); }
   background-color: transparent !important;
   color: var(--text-sub) !important;
   box-shadow: none !important;
+  display: none !important;
+}
+/* 隱藏 Radio 時連同 Label 一起隱藏的輔助樣式 */
+.segmented-control input[type="radio"][style*="display: none"] + label {
   display: none !important;
 }
