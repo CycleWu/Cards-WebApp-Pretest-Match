@@ -65,8 +65,7 @@ let appState = {
 };
 
 let currentCardPool = []; 
-let dataCache = {};       
-let isLoading = false;
+let dataCache = {};
 let selectedIndices = [];
 
 // === DOM 取得 ===
@@ -96,7 +95,7 @@ const drawButtonTextOnlyEl = document.getElementById("drawButtonTextOnly");
 
 // 占卜版元素
 const cardSpread = document.getElementById("cardSpread");
-const testCardDetail = document.getElementById("testCardDetail");
+const divinationPlaceholder = document.getElementById("divinationPlaceholder");
 const selectionCounter = document.getElementById("selectionCounter");
 
 // === 初始化 ===
