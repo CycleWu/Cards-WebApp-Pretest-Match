@@ -179,34 +179,40 @@ function validateAndApplyState() {
   const classicRadio = document.getElementById('source-classic');
   const hiddenRadio = document.getElementById('source-hidden');
   
-  // 取得父層 label 以便隱藏
-  const classicLabel = classicRadio.nextElementSibling;
+  // 取得對應的 label
+  const classicLabel = document.querySelector('label[for="source-classic"]');
+  const hiddenLabel = document.querySelector('label[for="source-hidden"]');
 
+  // 邏輯處理
   if (lang === 'en') {
-    // 2. 英文版：直接隱藏經典卡選項
+    // 2. 英文版：隱藏經典卡選項與其 label
     classicRadio.style.display = 'none';
     classicLabel.style.display = 'none';
     hiddenRadio.disabled = false;
+    hiddenLabel.style.opacity = "1";
     if (appState.source === 'classic') appState.source = 'hidden';
   } else if (lang === 'jp') {
-    // 3. 日文版：保留隱言經但禁用 (無功能)
+    // 3. 日文版：保留隱言經但禁用
     classicRadio.style.display = 'inline-block';
     classicLabel.style.display = 'inline-block';
     classicRadio.disabled = false;
-    hiddenRadio.disabled = true;
+    hiddenRadio.disabled = true; // 保留選項但無法功能做動
+    hiddenLabel.style.opacity = "0.3"; // 視覺上呈現禁用感
     if (appState.source === 'hidden') appState.source = 'classic';
   } else {
-    // 繁中：全部顯示
+    // 繁體中文：全部正常顯示
     classicRadio.style.display = 'inline-block';
     classicLabel.style.display = 'inline-block';
     classicRadio.disabled = false;
     hiddenRadio.disabled = false;
+    hiddenLabel.style.opacity = "1";
   }
 
+  // 同步選中狀態
   document.getElementById(`source-${appState.source}`).checked = true;
 
   updateUILanguage();
-  resetDisplays(); // 1. 進入新狀態時先隱藏結果區
+  resetDisplays(); // 1. 確保進入後不顯示任何結果區塊
   updateLayout();
   loadData();
 }
@@ -505,14 +511,17 @@ function updateSelectionUI() {
 
 // === 重設顯示狀態 ===
 function resetDisplays() {
-  // 隱藏所有模式的結果區塊
-  if (document.getElementById("cardDisplay")) 
-    document.getElementById("cardDisplay").style.display = "none";
-  if (document.getElementById("textCardDisplay")) 
-    document.getElementById("textCardDisplay").style.display = "none";
+  const cardDisplay = document.getElementById("cardDisplay");
+  const textCardDisplay = document.getElementById("textCardDisplay");
+  const divinationResults = document.getElementById("divinationFullResults");
+
+  if (cardDisplay) cardDisplay.style.display = "none";
+  if (textCardDisplay) textCardDisplay.style.display = "none";
+  if (divinationResults) divinationResults.style.display = "none";
   
-  const resultsArea = document.getElementById("divinationFullResults");
-  if (resultsArea) resultsArea.style.display = "none";
+  // 清空文字內容
+  if (cardNameEl) cardNameEl.textContent = "";
+  if (textCardNameEl) textCardNameEl.textContent = "";
 }
 
 function triggerAnimation(element) {
