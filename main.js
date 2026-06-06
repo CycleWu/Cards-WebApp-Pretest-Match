@@ -53,12 +53,26 @@ const UI_TEXTS = {
     ui_divination_reset: "Start Over",
     ui_status_init: "Initializing...",
     ui_image_toggle: "Show Images"
+  },
+  kr: {
+    ui_title: "경전 카드 뽑기",
+    ui_source_classic: "경전 카드",
+    ui_source_hidden: "숨겨진 말씀",
+    ui_mode_simple: "일반 모드",
+    ui_mode_divination: "점술 모드",
+    ui_draw_btn: "카드 뽑기",
+    ui_cardlist_summary: "카드 목록",
+    ui_divination_hint: "직감에 따라 6장의 카드를 선택하세요",
+    ui_divination_result_title: "✦ 당신의 점술 결과 ✦",
+    ui_divination_reset: "다시 선택하기",
+    ui_status_init: "초기화 중...",
+    ui_image_toggle: "카드 이미지 표시"
   }
 };
 
 // === 狀態管理 (核心) ===
 let appState = {
-  lang: "zh",      // zh | jp | en | ko
+  lang: "zh",      // zh | jp | en | kr
   source: "classic",// classic | hidden
   mode: "simple"    // simple | divination
 };
@@ -163,14 +177,14 @@ function validateAndApplyState() {
     hiddenRadio.disabled = true;
     classicRadio.disabled = false;
     if (appState.source === 'hidden') appState.source = 'classic';
-  } else if (lang === 'en') {
-    // 英文：無經典卡 (隱藏選項標籤，保留隱言經)
+  } else if (lang === 'en' || lang === 'kr') {
+    // 英文與韓文：無經典卡 (隱藏選項標籤，保留隱言經)
     classicRadio.disabled = true;
     if(classicLabel) classicLabel.style.display = "none";
     hiddenRadio.disabled = false;
     if (appState.source === 'classic') appState.source = 'hidden';
   } else {
-    // 繁中 (與韓文)：皆有
+    // 繁中：皆有
     classicRadio.disabled = false;
     hiddenRadio.disabled = false;
   }
@@ -219,6 +233,7 @@ function getTargetJsonPath() {
   } else if (source === 'hidden') {
     if (lang === 'zh') return './hidden_words_zh.json';
     if (lang === 'en') return './hidden_words_en.json';
+    if (lang === 'kr') return './hidden_words_kr.json';
   }
   return './cards_filled.json'; 
 }
@@ -325,18 +340,24 @@ function renderCardTextOnly(card) {
   if(textCardDisplayEl) textCardDisplayEl.style.display = "flex";
 
   let prefix = "";
-  if (appState.lang === "en") prefix = "Hidden Words No. ";
-  else if (appState.lang === "zh") prefix = "隱言經 第 ";
+  let suffix = "";
+  if (appState.lang === "en") {
+    prefix = "Hidden Words No. ";
+  } else if (appState.lang === "zh") {
+    prefix = "隱言經 第 ";
+    suffix = " 條";
+  } else if (appState.lang === "kr") {
+    prefix = "숨겨진 말씀 제 ";
+    suffix = " 번";
+  }
 
-  let title = `${prefix}${card.name || card.id}`;
-  if (appState.lang === "zh") title += " 條";
+  let title = `${prefix}${card.name || card.id}${suffix}`;
 
   textCardNameEl.textContent = title;
   textCardDescriptionEl.textContent = card.description || "";
 
   triggerAnimation(textCardNameEl.parentElement);
 }
-
 function getCurrentBackImage() {
   const { lang, source } = appState;
   const isDarkTheme = document.body.getAttribute("data-theme") === "dark";
@@ -430,7 +451,7 @@ function updateSelectionUI() {
     resultsArea.querySelector('button').textContent = texts.ui_divination_reset;
     container.innerHTML = "";
 
-    selectedIndices.forEach((cardIdx, i) => {
+selectedIndices.forEach((cardIdx, i) => {
       const card = currentCardPool[cardIdx];
       const cardDiv = document.createElement("div");
       cardDiv.className = "result-card-unit";
@@ -438,6 +459,7 @@ function updateSelectionUI() {
       let orderText = `Card ${i + 1}`;
       if(lang === 'zh') orderText = `第 ${i + 1} 張`;
       if(lang === 'jp') orderText = `第 ${i + 1} 枚`;
+      if(lang === 'kr') orderText = `제 ${i + 1} 장`;
       
       cardDiv.innerHTML = `
         <h4>${orderText}：${card.name || ""}</h4>
