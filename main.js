@@ -55,7 +55,7 @@ const UI_TEXTS = {
     ui_image_toggle: "Show Images"
   },
   kr: {
-    ui_title: "경전 카드 뽑기",
+    ui_title: "클래식 카드 뽑기",
     ui_source_classic: "경전 카드",
     ui_source_hidden: "숨겨진 말씀",
     ui_mode_simple: "일반 모드",
