@@ -170,21 +170,16 @@ function validateAndApplyState() {
   const classicLabel = document.querySelector('label[for="source-classic"]');
 
   // 每次切換前，先還原經典卡標籤的顯示狀態
-  if(classicLabel) classicLabel.style.display = "";
+  if (classicLabel) classicLabel.style.display = "";
 
-  if (lang === 'jp') {
-    // 日文：無隱言經 (保留選項，但停用)
-    hiddenRadio.disabled = true;
-    classicRadio.disabled = false;
-    if (appState.source === 'hidden') appState.source = 'classic';
-  } else if (lang === 'en' || lang === 'kr') {
+  if (lang === 'en' || lang === 'kr') {
     // 英文與韓文：無經典卡 (隱藏選項標籤，保留隱言經)
     classicRadio.disabled = true;
     if(classicLabel) classicLabel.style.display = "none";
     hiddenRadio.disabled = false;
     if (appState.source === 'classic') appState.source = 'hidden';
   } else {
-    // 繁中：皆有
+    // 繁中和日文：皆有
     classicRadio.disabled = false;
     hiddenRadio.disabled = false;
   }
@@ -347,6 +342,9 @@ function renderCardTextOnly(card) {
   } else if (appState.lang === "zh") {
     prefix = "隱言經 第 ";
     suffix = " 條";
+  } else if (appState.lang === "jp") {
+    prefix = "かくされたる言葉 第 ";
+    suffix = " 条";
   } else if (appState.lang === "kr") {
     prefix = "숨겨진 말씀 제 ";
     suffix = " 번";
