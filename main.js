@@ -232,6 +232,7 @@ function getTargetJsonPath() {
     if (lang === 'jp') return './cards_jp.json';
   } else if (source === 'hidden') {
     if (lang === 'zh') return './hidden_words_zh.json';
+    if (lang === 'jp') return './hidden_words_jp.json';
     if (lang === 'en') return './hidden_words_en.json';
     if (lang === 'kr') return './hidden_words_kr.json';
   }
